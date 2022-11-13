@@ -6,10 +6,12 @@ import { url } from "./config.js"
 
 const testImage = open("testimage.jpg", "b")
 
-export default function () {
-  const res = http.post(url("/login"), {
-    account_name: "terra",
-    password: "terraterra",
+function postimageScenario() {
+  const account = getAccount()
+
+  const login_res = http.post(url("/login"), {
+    account_name: account.account_name,
+    password: account.password,
   })
 
   const doc = parseHTML(res.body)

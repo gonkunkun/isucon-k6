@@ -6,10 +6,14 @@ import { parseHTML } from "k6/html"
 
 import { url } from "./config.js"
 
-export default function () {
+import { getAccount } from "./accounts.js"
+
+function commentScenario() {
+  const account = getAccount()
+
   const login_res = http.post(url("/login"), {
-    account_name: 'terra',
-    password: 'terraterra',
+    account_name: account.account_name,
+    password: account.password,
   })
 
   check(login_res, {
