@@ -1,6 +1,6 @@
-import initialize from "/initialize.js"
-import comment from "/comment.js"
-import postimage from "/postimage.js"
+import initialize from "./initialize.js"
+import comment from "./comment.js"
+import postimage from "./postimage.js"
 
 export { initialize, comment, postimage }
 
