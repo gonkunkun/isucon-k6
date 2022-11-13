@@ -1,40 +1,51 @@
-import http from "k6/http"
+// k6mからhttp処理のmoduleをimport
+import http from "k6/http";
 
-import { check } from 'k6'
+// k6からcheck関数をimport
+import { check } from "k6";
 
-import { parseHTML } from "k6/html"
+// k6からHTMLをパースする関数をimport
+import { parseHTML } from "k6/html";
 
-import { url } from "./config.js"
+// url関数をimport
+import { url } from "./config.js";
 
-import { getAccount } from "./accounts.js"
+// getAccount 関数を accounts.js から import
+import { getAccount } from "./accounts.js";
 
-function commentScenario() {
-  const account = getAccount()
-
+// ベンチマーカーがが実行するシナリオ関数
+// ログインしてからコメントを投稿する
+export default function () {
+  // ランダムに1アカウントを選択
+  const account = getAccount();
+  // /login に対して送信
   const login_res = http.post(url("/login"), {
     account_name: account.account_name,
     password: account.password,
-  })
+  });
 
+  // レスポンスのステータスコードが 200 であることを確認
   check(login_res, {
-    "is status 200": (r) => r.status === 200
-  })
+    "is status 200": (r) => r.status === 200,
+  });
 
-  const res = http.get(url("/@terra"))
+  // ユーザーページ /@terra をGET
+  const res = http.get(url("/@terra"));
 
-  const doc = parseHTML(res.body)
+  // レスポンスの内容をHTMLとして解釈
+  const doc = parseHTML(res.body);
 
-  const token = doc.find('input[name="csrf_token"]').first().attr("value")
-  const post_id = doc.find('input[name="post_id"]').first().attr("value")
+  // フォームのhidden要素から csrf_token, post_id を抽出
+  const token = doc.find('input[name="csrf_token"]').first().attr("value");
+  const post_id = doc.find('input[name="post_id"]').first().attr("value");
 
+  // /comment に対して、post_id, csrf_token とともにコメント本文をPOST
   const comment_res = http.post(url("/comment"), {
     post_id: post_id,
     csrf_token: token,
-    comment: "Hello k6!"
-  })
-
+    comment: "Hello k6!",
+  });
   check(comment_res, {
     "is status 200": (r) => r.status === 200,
-  })
-
+  });
 }
